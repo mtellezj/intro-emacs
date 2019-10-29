@@ -1,0 +1,618 @@
+* Introducción
+- Es un editor extensible, personalizable, auto-documentado y de tiempo real.
+- La primera versión se escribió en 1975 por Richard Stallman.
+
+** Extensible
+El motor de emacs está escrito en una variante de Lisp llamada Emacs Lisp,
+y se pueden añadir nuevas características programando directamente en Emacs Lisp.
+
+** Personalizable
+- En emacs todo es un comando, incluso el presionar una tecla invoca al comando 'insert-char'.
+- En el archivo de configuración se pueden definir bloques de código que usen los comandos
+  existentes para crear unos nuevos, o extender la funcionalidad de los mismos.
+
+** Auto-documentado
+- Todo en emacs tiene documentación, incluso tiene su propio tutorial.
+- Se puede saber que hace una función en particular, una variable o un modo de edición.
+  (útil cuando no conoces un modo).
+
+** Tiempo real
+- Cuando Emacs fue creado los editores de texto no mostraban inmediatamente los caracteres
+  que eran tecleados.
+
+** Iniciar Emacs
+1. Desde la consola, podemos teclear "emacs".
+2. Si estamos en una terminal gráfica, si ejecutamos "emacs" nos abrirá una ventana con la interfaz gráfica,
+   para forzar el modo texto, usamos "emacs -nw".
+3. Usando un menú o lanzador desde ambiente gráfico.
+
+** Salir de Emacs
+C-x C-c
+
+* Interfaz
+
+** Frames
+Es la ventana principal de Emacs, solo existe un marco por sesión.
+
+** Windows
+Son las secciones en las que se divide el frame. Son una especie de subventana.
+Cada ventana muestra el contenido de un buffer.
+
+** Buffers
+- Almacena el contenido a desplegar en una ventana.
+- Puede ser el contenido de un archivo, el listado de un directorio, una línea de comandos.
+- Un buffer puede ser mostrado en una ventana, o estar oculto por debajo de las ventanas activas.
+- Un buffer se puede mostrar en más de una ventana a la vez.
+
+** Mode line
+El la barra inferior en cada ventana, y muestra información del contenido del buffer, como el nombre,
+fila y columna del cursor, "modo", etc.
+
+* Comandos de edición
+
+** El poder de la manipulación del texto
+
+- Emacs tiene una gran cantidad de herramientas para manipular texto.
+- Puede mostrar diferentes tipos de información como texto.
+
+- M-x dired invoca el administrador de archivos.
+- C-x C-q activa el modo 'Edición de dired', el cual permite editar los nombres de los archivos.
+- Si se requiere renombrar varios archivos en base a un patrón de texto podemos usar la función
+  búsqueda y reemplazar (M-%), no hay necesidad de aprender una nueva herramienta para reemplazar en masa.
+
+** Abrir un archivo
+| Teclas    | Descripción                               |
+|-----------+-------------------------------------------|
+| C-x C-f   | Abre o crea un archivo en un buffer nuevo |
+| C-x C-r   | Abre un archivo en modo "solo lectura"    |
+| C-x 4 C-f | Abre un archivo en otra ventana           |
+| C-x 5 C-f | Abre el archivo en un marco nuevo         |
+| C-x i     | Inserta un archivo en el buffer actual    |
+
+
+** El punto, la marca y la región
+- El punto :: Corresponde a la posición donde se encuentra el cursor. El punto siempre se encuentra "entre"
+  las letras, y no sobre una de ellas: a|b
+- La marca :: Es un registro donde se guarda la posición del punto en un momento determinado, ya sea que el
+  guardado lo haga el usuario, o algún comando.
+- La región :: Corresponde a la sección delimitada por la marca y el punto.
+  
+** Movimiento
+*** Comándos básicos
+Los movimientos básicos mueven el punto por columnas o líneas:
+| Teclas | Descripción                   |
+|--------+-------------------------------|
+| C-f    | Avanza un caracter            |
+| C-b    | Retrocede un caracter         |
+| C-n    | Avanza una línea              |
+| C-p    | Retrocede una línea           |
+| C-l    | Centra la ventana en el punto |
+
+*** Incremento mayores de movimiento
+Algunas formas de mover el punto en incrementos mayores:
+| Teclas | Descripción           |
+|--------+-----------------------|
+| C-a    | Inicio de la línea    |
+| C-e    | Fin de la línea       |
+| M-f    | Avanza una palabra    |
+| M-b    | Retrocede una palabra |
+| M-a    | Sentencia previa      |
+| M-e    | Sentencia siguiente   |
+| M-v    | Pantalla previa       |
+| C-v    | Pantalla siguiente    |
+| M-<    | Principio del buffer  |
+| M->    | Fin del buffer        |
+| M-{    | Inicio del párrafo    |
+| M-}    | Fin del párrafo       |
+
+Los mismos comandos sirven en una terminal.
+
+*** Movimiento con prefijo
+Se puede usar un argumento prefijo para repetir varias veces un comando:
+| Teclas          | Descripción          |
+|-----------------+----------------------|
+| C-u 3 C-p       | Sube 3 renglones     |
+| C-u 10 C-f      | Avanza 10 caracteres |
+| M-1 M-0 C-f     | Avanza 10 caracteres |
+| C-u C-n         | Avanza 4 renglones   |
+| C-u C-u C-n     | Avanza 16 renglones  |
+| C-u C-u C-u C-n | Avanza 64 renglones  |
+
+*** Movimiento por búsqueda
+- Para ir a una línea en particular usamos M-g g
+- Búsqueda incremental hacia adelante C-s
+- Búsqueda incremental hacia atrás C-r
+
+*** Movimiento usando la marca
+- Para establecer la marca C-SPC
+- Para regresar a la marca C-x C-x
+
+Al presionar C-x C-x se intercambia el punto con la marca, por lo que si se presiona nuevamente C-x C-x
+regresaremos al punto inicial.
+
+| Cuando tu...                               | la marca se activa en...           |
+|--------------------------------------------+------------------------------------|
+| Tecleas C-SPC                              | tu posición actual                 |
+| Brincas a los extremos de buffer M-< ó M-> | tu posición actual                 |
+| Terminas una búsqueda incremental          | donde empezaste la búsqueda        |
+| Pegas texto                                | el inicio de la región que pegaste |
+| Insertas un buffer o archivo               | el inicio del texto insertado      |
+| Si vas a la definición de un método        | tu posición actual                 |
+
+Por último, Emacs tiene un "anillo" donde almacena las últimas 16 marcas guardadas, y puedes recorrerlo
+tecleando C-u C-SPC repetidamente. Podemos simplificar este proceso usando el comando C-x z el cual ejecuta
+el último comando, y si presionamos la tecla "z" repetidamente seguimos repitiendo el mismo comando.
+
+** Seleccionar texto
+
+*** La región y los comandos de edición
+| Teclas | Descripción                                             |
+|--------+---------------------------------------------------------|
+| C-SPC  | Para poner explícitamete la marca usamos                |
+| C-x h  | Para seleccionar todo el texto de un buffer usamos      |
+| M-h    | Para seleccionar el párrafo donde se encuentra el punto |
+
+- Se pueden activar la marca y usar cualquiera de los comandos de movimiento para crear una región.
+- Muchos comandos crean la región automáticamente como el pegar texto o insertar un archivo, todos estos
+  comandos crean una región al rededor del texto insertado. Podemos restringir los comandos a la región actual:
+| Teclas  | Descripción                            |
+|---------+----------------------------------------|
+| C-x n n | Restringe el buffer a la región actual |
+| C-x n w | Restaura el buffer                     |
+
+Si instalamos el paquete "expand-region" podemos expander la región actual presionando repetidamente
+una combinación de teclas.
+
+Con el paquete "wrap-region" podemos agregar comillas o paréntesis al inicio y final de la región.
+
+** Copiar y pegar
+En la terminología de Emacs, borrar un texto se denomina 'kill', lo que significa que el texto se elimina
+del buffer pero se guarda en un 'kill ring', o anillo de borrado, para recuperarlo más tarde.
+| Teclas    | Descripción                               |
+|-----------+-------------------------------------------|
+| M-w       | Copia la región                           |
+| C-w       | Corta la región                           |
+| C-k       | Borra desde el punto al final de la línea |
+| C-u 5 C-k | Borra 5 líneas                            |
+| M-d       | Borra la palabra siguiente                |
+| M-k       | Borra hasta el final de la sentencia      |
+| C-x <DEL> | Borra hasta el inicio de la sentencia     |
+
+Opciones para pegar texto, o recuperarlo desde el anillo de borrado.
+| Teclas | Descripción                  |
+|--------+------------------------------|
+| C-y    | Pega la región               |
+| M-y    | Recorre el anillo de borrado |
+
+Undo, deshacer los cambios. Emacs tiene 3 diferentes formas de deshacer los cambios.
+| Teclas | Descripción |
+|--------+-------------|
+| C-/    | Undo        |
+| C-_    | Undo        |
+| C-x u  | Undo        |
+
+Existe una cantidad ilimitada de 'undos', el único límite es la memoria.
+
+** Buscar y reemplazar
+
+*** Busqueda incremental
+| Teclas  | Descripción                                |
+|---------+--------------------------------------------|
+| C-s     | Búsqueda hacia adelante                    |
+| C-r     | Búsqueda hacia atras                       |
+| C-s C-s | Repite la última búsqueda                  |
+| C-M-s   | Búsqueda con expresión regular             |
+| C-s M-p | Item anterior en el historial de búqueda   |
+| C-s M-n | Item siguiente en el historial de búsqueda |
+
+*** Reemplazar texto
+| Teclas             | Descripción                           |
+|--------------------+---------------------------------------|
+| C-%                | Reemplaza una cadena de texto         |
+| M-x replace-regexp | Reeplaza usando una expresión regular |
+
+Emacs dispone de un constructor de expresiones regulares: M-x re-builder
+
+*** Historial
+
+** Eliminar espacios
+M-<spc>
+
+** Formatear texto
+
+*** Fill Paragraph
+Se puede usar M-q o 'fill-paragraph' para formatear el parrafo a una
+longitud de línea preestablecida. El default es de 70 caracteres.
+
+**** Cambiar la columna default
+Esta columna está definida por la variable 'fill-column', y puede ser
+definida con:
+- 'C-x f' o con 'M-x set-fill-column' usando un argumento explícito.
+- Hay que usar 'C-u' seguido de un número para especificar la
+  columna. Si no se especifica ningún número se usará la columna
+  actual.
+- En el archivo de configuración se puede establecer con (setq-default fill-column 80).
+- Para rellenar un bloque con la misma longitud de líneas (en forma de
+  bloque) se tiene que usar la secuencia 'C-u M-q', o usando las teclas 'M-1 M-q'.
+
+**** Delimitadores de párrafos
+Por default, los párrafos son delimitados por líneas en blanco, por lo
+que las listas que empiecen con (-,+,*) se fusionarán en una sola
+línea si no están separadas por líneas en blanco. Si se está en
+org-mode o markdown-mode no se tiene este problema, pero para otros
+modos se puede usar esto:
+
+#+BEGIN_SRC elisp
+   (setq paragraph-start "\f\\|[ \t]*$\\|[\t]*[-+*] ")
+#+END_SRC
+
+* Registros
+Los registros son contenedores para guardar diferentes tipos de información.
+| Teclas | Descripción |
+|--------+-------------|
+|        |             |
+
+** Guardar texto en un registro
+
+** Guardar una posición en un registro
+
+** Guardar un número en un registro (para incrementarlo)
+
+** Guardar la configuración de ventanas
+
+tw* Rectángulos
+Para definir un rectángulo se hay que seleccionar una región, siendo el inicio de la región la
+esquina superior izquierda y el final la esquina inferior derecha del rectángulo.
+| Teclas               | Descripción                                         |
+|----------------------+-----------------------------------------------------|
+| C-x r k              | Corta el contenido del rectángulo                   |
+| C-x r M-w            | Copia el contenido del rectángulo                   |
+| C-x r d              | Borra el contenido del rectángulo                   |
+| C-x r y              | Pega el último rectángulo borrado                   |
+| C-x r N              | Inserta número de líneas a la izquierda             |
+| C-x r c              | Borra el rectángulo y lo reemplaza con con espacios |
+| C-x r t STRING <RET> | Reemplaza el contenido del rectángulo con STRING    |
+|                      |                                                     |
+
+* Bookmarks
+Los marcadores permiten regresar a un punto específico de un buffer.
+| Teclas              | Descripción            |
+|---------------------+------------------------|
+| C-x r m             | Agrega un marcador     |
+| C-x r b             | Salta a un marcador    |
+| C-x r l             | Muestra los marcadores |
+| M-x bookmark-delete | Borra un marcador      |
+
+* SQL
+
+** Historial
+
+* Dired
+
+** Comandos
+- ~dired-jump~ Abre un buffer dired con el directorio actual.
+- ~j~ (~dired-goto-file~) pide el nombre de un archivo y brinca a esa
+  línea.
+- ~M-s f C-s~ (~dired-isearch-filenames~) realiza una búsqueda
+  incremental en los nombres de los archivos.
+- ~M-C-s~ (~dired-isearch-filenames-regexp~) realiza una búsqueda en
+  los nombres de los archivos usando expresiones regulares.
+- ~M-x find-dired~ ejecuta al comando del sistema ~find~ para buscar
+  archivos que cumplan un criterio de búsqueda y el resultado lo
+  muestra como un buffer *dired*.
+
+** Renombrar archivos
+- Editando /in-place/ ~C-x C-q~ (~M-x wdired-change-to-wdired-mode~)
+- Por lotes: ~M-%~ (~M-x query-replace~)
+
+** Abrir archivos
+
+*** Historial de minibuffer
+
+* Minibuffer
+
+** Historial
+
+* Buffers
+
+** Mostrar buffers
+
+** Cambiar buffer
+
+** Cambiar buffer en otra ventana
+
+** Cerrar buffer
+
+** Ventanas
+
+*** Dividir la ventana horizontalmente
+
+*** Dividir la ventana verticalmente
+
+*** Eliminar un buffer dividido
+
+* Abrir archivo
+
+** Abrir archivo en otra ventana
+
+* Org mode
+
+** Niveles
+
+*** Creación de niveles
+- El nivel superior o raíz se crea con un asterisco al inicio de la
+  línea seguido de un espacio.
+- Un nivel de segundo nivel se crea con dos asteriscos al inicio de la
+  línea seguido de un espacio. Para crear más niveles simplemente se
+  añaden asteriscos.
+
+*** Colapsar y expandir
+Presionando ~TAB~ sobre un encabezado se colapsa o expande su
+información. Si presionamos ~S-TAB~ se expande y contrae todo el
+arbol, primero mostrando los elementos de primer nivel, después los de
+segundo nivel, y así posteriormente hasta mostrar todos los niveles.
+
+*** Navegación
+- Con ~C-c C-p~ brincamos al encabezado visible anterior.
+- Con ~C-c C-n~ brincamos al encabezado visible siguiente.
+- Con ~C-c C-b~ brincamos al encabezado anterior mismo nivel.
+- Con ~C-c C-f~ brincamos al encabezado siguiente mismo nivel.
+- Con ~C-c C-u~ brincamos al encabezado anterior de nivel superior.
+- Con ~C-c C-j~ brincamos a una ubicación diferente sin modificar la
+  estructura visual del documento.
+
+** Edición de la estructura del documento
+- Se puede usar la combinación ~M-RET~ para crear un encabezado en
+  el nivel actual.
+- ~C-RET~ para crear un nuevo encabeza al final del nivel actual.
+- Al presionar ~M-LEFT~ promovemos un encabezado.
+- Al presionar ~M-RIGHT~ degradamos un encabezado.
+- Con ~M-S-LEFT~ promovemos un encabezado con sus hijos.
+- Con ~M-S-RIGHT~ degradamos un encabezado con sus hijos.
+- Para mover todo un encabezado hacia arriba ~M-UP~.
+- Para mover todo un encabezado hacia abajo ~M-DOWN~.
+- Para cambiar de posición un encabezado ~C-c C-w~.
+
+** TODO's y otros estados
+Se pueden asignar estados a las tareas para crear un sistema de
+seguimiento. Las tareas se clasifican en dos grupos:
+  1. Por hacer.
+  2. Realizadas.
+En el primer grupo tenemos al estado *TODO*, y en el segundo grupo el
+estado es *DONE*.
+
+*** TODO Reservar el dominio para la página web
+Pellentesque dapibus suscipit ligula.  Donec posuere augue in quam.
+Etiam vel tortor sodales tellus ultricies commodo.  Suspendisse
+potenti.  Aenean in sem ac leo mollis blandit.  Donec neque quam,
+dignissim in, mollis nec, sagittis eu, wisi.  Phasellus lacus.
+
+*** TERMINADO Crear índices en la base de datos
+
+*** Atajos para crear estados
+- Con ~C-c C-t~ se muestra una lista de los estados disponibles.
+- Al presionar ~S-RIGHT~ o ~S-LEFT~ en un encabezado con un estado,
+  cambiamos entre todos los posibles estados.
+
+** Tareas / Checklist
+
+*** Listas numéricas
+1. Lorem ipsum
+2. Dolor meter
+3. Sit amet
+
+*** Listas sin orden
+- Lorem ipsum
+- Dolor meter
+- Sit amet
+
+*** Listas con checkboxes
+- [ ] Lorem ipsum
+- [ ] Dolor meter
+- [ ] Sit amet
+
+** Encabezados con resumen de estados
+Se puede agregar un indicador a cada encabezado para visualizar
+cuantas tareas están pendientes. Se puede mostrar un indicador del
+total de las tareas o por porcentaje.
+
+*** Lista de compras [0/4]
+- [ ] Tomates
+- [ ] Cebolla
+- [ ] Limones
+- [ ] Azúcar
+
+*** Remodelación de la cocina [0%]
+- [ ] Instalar nueva campana
+- [ ] Cambiar el piso
+
+*** Contratación de programador freelance [0/3]
+
+**** TODO Crear un cuestionario para la entrevista
+
+**** TODO Buscar en las redes sociales
+
+**** TODO Revisar CV
+
+** Bloques de código
+#+begin_src python :session
+import os
+
+def saludo(texto):
+    return f"Hola {texto}"
+
+x = saludo(mundo)
+#+end_src
+
+#+RESULTS:
+
+** Comandos de edición
+- ~M-q~ ordena los párrafos para que las líneas tengan un largo similar.
+
+** Tags
+
+- Para agregar una etiqueta: ~C-c C-q~
+
+** Tablas
+
+** Sparse Tree
+
+*** Búsqueda
+Se pueden crear árboles de búsqueda con ~C-c /~ y ahí buscar por
+expresiones regulares, estatus, etiquetas, entre otras cosas.
+
+*** Navegación
+- Para ir a la siguiente ocurrencia ~M-g n~
+- Para ir a la ocurrencia previa ~M-g p~
+
+* Aplicaciones
+
+** Magit
+
+** Calendar
+
+** CSV mode
+
+** Calc
+*** Modos para diferentes bases
+Calc permite usar bases desde la 2 (binaria) hasta la base 36.
+Para establecer la salida en base binaria, octal, hexadecimal o
+decimal hay que presionar d 2, d 8, d 6, y d 0 respectivamente.
+*** Separador de grupos
+- Con d g (calc-group-digits) activamos/desactivamos los grupos.
+- d , (calc-group-char) permite especificar el separador, siendo una
+  coma el default.
+** FTP
+
+*** Historial
+
+** Terminal
+
+** Man
+M-X man
+
+** IRC
+* Tramp
+** Archivos remotos
+Mientras se esté en un buffer remoto, los comandos para abrir archivos
+son en el servidor remoto. Para abrir un archivo por ssh, a la hora de
+especificar la ruta y nombre del archivo hay que anteponer el "ssh"
+con las credenciales, por ejemplo, para abrir el archivo index.html en
+el servidor ejemplo.com como el usuario webmaster:
+
+/ssh:webmaster@ejemplo.com:/home/archivos_pagina/index.html
+
+** Dired remoto
+Para abrir un directorio remoto, solo hay que especificar el tipo de
+la conexión como parte del nombre al igual que se hace para abrir un
+archivo remoto. Una vez realizada la conexión, todos los archivos
+serán abiertos de forma remota usando tramp, e incluso es posible
+copiar de forma transparente archivos de la sesión remota a la
+computadora local, simplemente márcandolos y presionando la tecla "C",
+y cuando nos pregunte la ruta destino ponemos la ruta local (sin el
+prefijo /ssh:).
+** sudo
+Si queremos editar un archivo usando sudo, la sintaxis es muy parecida
+a la usada para la conexión por ssh:
+
+/sudo::/ruta/archivo.txt
+
+** Saltos entre hosts
+En ocasiones necesitamos conectarnos al servidor demo, pero no tenemos
+acceso directo desde nuestro equipo, pero sí podemos conectarnos al
+servidor test y desde ahí sí podemos conectarnos al host demo. Los
+saltos o "hoops" se especifican usando un pipe "|", por ejemplo:
+
+/ssh:usuario1@test|ssh:usuario2@demo:/ruta/archivo
+
+En caso de que se requiera usar sudo en el servidor, se puede usar la
+siguiente sintaxis:
+
+/ssh:usuario1@test|sudo:usuario2@demo:/ruta/archivo
+
+* Macros
+
+** Crear macros
+| Teclas | Descripción                              |
+|--------+------------------------------------------|
+| F3     | Empieza a grabar una macro               |
+| C-x (  | Empieza a grabar una macro               |
+| F4     | Detiene la grabación de una macro        |
+| C-x )  | Detiene la grabación de una macro        |
+| F4     | Ejecuta la macro una vez                 |
+| M-5 F4 | Ejecuta la macro 5 veces                 |
+| M-0 F4 | Ejecuta la macro hasta el fin del buffer |
+** Ejecutar el último macro creado
+
+** Guarda un macro y asignarle un hotkey
+
+** Repetir último comando C-z
+** Ejemplos de macros
+
+*** Copiar la primera palabra de cada párrafo
+
+*** Transponer la primera columna de un archivo CSV
+*** Crear una tabla dinámicamente con un registro
+
+* Todo es un comando
+
+* Es auto documentado
+
+** apropos 
+
+** describe-key C-h k
+Muestra que hace una combinación de teclas.   
+** describe-function C-h f
+Describe que hace una función.
+** describe-mode C-h m
+Muestra para que sirve un modo y las funciones que implementa dicho modo.
+** apropos-command C-h a
+
+* Dynamic abbrevations (dabbrevs)
+* Abbrev mode
+** Agregar una abreviación: C-a i g
+** Editar las abreviaciones M-x edit-abbrevs
+* Casos de uso
+
+** BD / FTP
+Realizar una consulta a la bd para obtener una dirección ip, copiarla, y crear una conexión FTP a esa IP.
+
+** Expresiones regulares
+Para reemplazar ciertas partes de una consulta:
+
+UPDATE coberturasGeneradasClientes c
+INNER JOIN coberturasGeneradasTiempos t
+ON c.idSucursal=t.idSucursal AND c.fechaCobertura=t.fechaCobertura
+INNER JOIN fechasValoresCoberturas f
+ON c.fechaCobertura=f.fechaCobertura AND c.idSucursal=f.idSucursal
+SET c.hora22=45*t.hora22
+WHERE c.fechaCobertura BETWEEN '2018-12-01' AND '2019-01-06'
+   AND c.hora22=45 AND f.procedimiento='MANUAL' AND horaCobertura=22;
+
+UPDATE fechasValoresCoberturas f
+INNER JOIN  coberturasGeneradasClientes c
+ON c.fechaCobertura=f.fechaCobertura AND c.idSucursal=f.idSucursal
+INNER JOIN coberturasGeneradasTiempos t
+ON c.idSucursal=t.idSucursal AND c.fechaCobertura=t.fechaCobertura
+SET f.clientes=45*t.hora22
+WHERE c.fechaCobertura BETWEEN '2018-12-01' AND '2019-01-06'
+   AND f.clientes=45 AND f.procedimiento='MANUAL' AND horaCobertura=22;
+
+La regex es:
+
+\(a\|=\)\([7-9]\|1[0-9]\|2[0-2]\)
+
+* Nombres únicos de buffers
+* Follow mode
+Crea una pantalla virtual
+* eyebrowse
+* vlf
+* Ver logs del sistema
+* grep
+** Diferentes tipos de grep
+- grep
+- lgrep
+- rgrep
+- zgrep
+** Navegar por los resultados
+Ver 27.2 Compilation Mode
